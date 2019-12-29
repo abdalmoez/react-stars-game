@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cloneElement } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Buttons from './buttons';
@@ -33,16 +33,25 @@ class App extends React.Component {
   btnClick=(event)=>{
     let {btnState} = this.state;
     let id=parseInt(event.target.innerText);
+    let target=this.getTagetValue();
     if(btnState[id-1]==='positive'){
       return;
     }
     else if(btnState[id-1]==='primary negative' || btnState[id-1]==='primary'){
       this.currentCount-=id;
       btnState[id-1]='';
+      if(this.currentCount === target){
+        for(let i=0;i<9;i++){
+          if(btnState[i]==='primary negative'){
+            btnState[i]='positive';
+          }
+        }
+        this.currentCount=0;
+        this.setState({starsState:getRandomState()});
+      }
       this.setState({btnState:btnState});
       return;
     }
-    let target=this.getTagetValue();
     this.currentCount+=id;
     console.log(this.currentCount,target);
 
@@ -56,16 +65,21 @@ class App extends React.Component {
           btnState[i]='positive';
         }
       }
-      //this.currentCount=0;
-      //this.setState({starsState:getRandomState()});
+      this.currentCount=0;
+      this.setState({starsState:getRandomState()});
     } else
       btnState[id-1]='primary';
 
      
     this.setState({btnState:btnState});
   };
+  restartGame=(event)=>{
+    this.currentCount=0;
+    this.setState({btnState:['','','','','','','','',''],starsState:getRandomState()});
+  }
   render(){ 
     return (<Segment>
+      <button className="ui button yellow" style={{float:"right"}} onClick={this.restartGame}>Restart Game</button>
       <Grid columns={2} relaxed='very'>
         <Grid.Column className="1">
           <div className="ui grid containter">
