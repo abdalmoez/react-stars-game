@@ -63,12 +63,27 @@ function getRandomState(btnStates=['','','','','','','','',''])
 
 class App extends React.Component {
   constructor(){
-    this.TimerHandler = setInterval(Timer);
+    super();
+    this.TimerHandler = setInterval(this.Timer, 1000);
+  }
+  Timer=()=>{
+    if(this.state.GameOver===false && this.state.Winner===false) {
+      if(this.state.TimeLeft>0 && this.state.GameOver===false){
+        this.setState({TimeLeft:this.state.TimeLeft-1});
+        if(this.state.TimeLeft===0)
+        {
+          this.setState({GameOver:true});
+          alert('GameOver');
+          this.restartGame();
+        }
+      } 
+    }
   }
   state={
     starsState:getRandomState(),
     btnState:['','','','','','','','',''],
     TimeLeft: 10,
+    GameOver:false,
     Winner:false
   };
   currentCount = 0 ; 
@@ -152,28 +167,32 @@ class App extends React.Component {
     this.setState({
         btnState:['','','','','','','','',''],
         starsState:getRandomState(),
-        Winner:false
+        Winner:false,
+        GameOver:false,
+        TimeLeft:10
       });
   }
   render(){ 
-    return (<Segment>
-      <button className="ui button yellow" style={{float:"right"}} onClick={this.restartGame}>Restart Game</button>
-      <Grid columns={2} relaxed='very'>
-        <Grid.Column className="1">
-          <div className="ui grid containter">
-            
-              <Buttons arrayState={this.state.btnState} onClick={this.btnClick} />
-            
-          </div>
-        </Grid.Column>
-        <Grid.Column className="2">
-          <div className="ui grid containter">
-            <Stars arrayState={this.state.starsState}/>
-          </div>
+    return (<>
+      <Segment>
+        <button className="ui button yellow" style={{float:"right"}} onClick={this.restartGame}>Restart Game</button>
+        <Grid columns={2} relaxed='very'>
+          <Grid.Column className="1">
+            <div className="ui grid containter">
+              
+                <Buttons arrayState={this.state.btnState} onClick={this.btnClick} />
+              
+            </div>
+          </Grid.Column>
+          <Grid.Column className="2">
+            <div className="ui grid containter">
+              <Stars arrayState={this.state.starsState}/>
+            </div>
         </Grid.Column>
       </Grid>
-    <Counter time={this.state.TimeLeft}/>
     </Segment>
+    <Counter time={this.state.TimeLeft}/>
+    </>
     );
   }
 }
