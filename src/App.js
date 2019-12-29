@@ -20,7 +20,6 @@ class App extends React.Component {
   state={
     starsState:getRandomState(),
     btnState:['','','','','','','','',''],
-    
   };
   currentCount = 0 ; 
   getTagetValue(){
@@ -48,6 +47,13 @@ class App extends React.Component {
         }
         this.currentCount=0;
         this.setState({starsState:getRandomState()});
+      } else if(this.currentCount < target) {
+        for(let i=0;i<9;i++){
+          if(btnState[i]==='primary negative'){
+            btnState[i]='primary';
+          }
+        }
+        
       }
       this.setState({btnState:btnState});
       return;
@@ -55,9 +61,14 @@ class App extends React.Component {
     this.currentCount+=id;
     console.log(this.currentCount,target);
 
-    if(this.currentCount>target)
+    if(this.currentCount>target) {
       btnState[id-1]='primary negative';
-    else if(this.currentCount === target){
+      for(let i=0;i<9;i++){
+        if(btnState[i]==='primary'){
+          btnState[i]='primary negative';
+        }
+      }
+    }else if(this.currentCount === target){
 
       btnState[id-1]='positive';
       for(let i=0;i<9;i++){
