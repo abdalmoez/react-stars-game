@@ -1,25 +1,75 @@
-import React, { cloneElement } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Grid, Segment } from 'semantic-ui-react';
 import Buttons from './buttons';
 import Stars from './Stars';
-import { Divider, Grid, Image, Segment } from 'semantic-ui-react';
-import Star from './star';
+import Counter from './Counter';
 
-function getRandomState()
+function availableSolutions(btnStates)
 {
-  let state=[];
+  let comb=[
+    [],//1
+    [],//2
+    [[1,2]],//3
+    [[1,3]],//4
+    [[1,4],[2,3]],//5
+    [[1,5],[1,2,3],[2,4]],//6
+    [[1,6],[1,2,4],[2,5],[3,4]],//7
+    [[1,7],[1,2,5],[1,3,4],[2,6],[3,5]],//8
+    [[1,8],[1,2,6],[2,3,4],[3,6],[4,5]]//9
+  ];
+  let avSol=[];
+  btnStates.forEach((el,idx)=>{
+    if(el!=='positive')
+      avSol.push(idx+1);
+  });
+  if(avSol.length===9)
+    return avSol;
+  let combSol=[];
   for(let i=0;i<9;i++){
-    state.push(Math.random()>0.5)
-    console.log(state[i]);
+    if(!avSol.includes(i+1) && !combSol.includes(i+1)) {
+      let done=false;
+        console.log("I: ",i);
+      for(let j=0;j<comb[i].length && !done;j++){
+        let exist=true;
+        for(let k=0;k<comb[i][j].length && exist;k++){
+          if(!avSol.includes(comb[i][j][k]))
+            exist=false;
+        }
+        if(exist){
+          combSol.push(i+1);
+          done = true;
+        }
+      }
+    }
+  }
+  return [...avSol,...combSol];
+}
+
+function getRandomState(btnStates=['','','','','','','','',''])
+{  
+  let sol=availableSolutions(btnStates);
+  let state=[false,false,false,false,false,false,false,false,false];
+  let target=sol[Math.round((sol.length -1)*Math.random())];
+  
+  for(let i=0;i<target;i++){
+    let idx;
+    do{
+      idx=Math.round(Math.random()*8);
+    }while(state[idx]);
+    state[idx]=true;
   }
   return state;
 }
 
 class App extends React.Component {
+  constructor(){
+    this.TimerHandler = setInterval(Timer);
+  }
   state={
     starsState:getRandomState(),
     btnState:['','','','','','','','',''],
+    TimeLeft: 10,
+    Winner:false
   };
   currentCount = 0 ; 
   getTagetValue(){
@@ -46,7 +96,12 @@ class App extends React.Component {
           }
         }
         this.currentCount=0;
-        this.setState({starsState:getRandomState()});
+        this.setState({starsState:getRandomState(btnState)});
+        if(this.getTagetValue()===0)
+        {
+          alert("Well done!");
+          this.restartGame();
+        }
       } else if(this.currentCount < target) {
         for(let i=0;i<9;i++){
           if(btnState[i]==='primary negative'){
@@ -59,7 +114,6 @@ class App extends React.Component {
       return;
     }
     this.currentCount+=id;
-    console.log(this.currentCount,target);
 
     if(this.currentCount>target) {
       btnState[id-1]='primary negative';
@@ -71,22 +125,35 @@ class App extends React.Component {
     }else if(this.currentCount === target){
 
       btnState[id-1]='positive';
+      let done=true;
       for(let i=0;i<9;i++){
         if(btnState[i]==='primary'){
           btnState[i]='positive';
+        }else if(btnState[i]!=='positive') {
+          done = false;
         }
       }
       this.currentCount=0;
-      this.setState({starsState:getRandomState()});
+      this.setState({starsState:getRandomState(btnState)});
+
+      if(done)
+      {
+        this.setState({Winner:true});
+        alert("Well done!");
+        this.restartGame();
+        return;
+      }
     } else
       btnState[id-1]='primary';
-
-     
     this.setState({btnState:btnState});
   };
   restartGame=(event)=>{
     this.currentCount=0;
-    this.setState({btnState:['','','','','','','','',''],starsState:getRandomState()});
+    this.setState({
+        btnState:['','','','','','','','',''],
+        starsState:getRandomState(),
+        Winner:false
+      });
   }
   render(){ 
     return (<Segment>
@@ -99,19 +166,14 @@ class App extends React.Component {
             
           </div>
         </Grid.Column>
-
-
-
         <Grid.Column className="2">
-        <div className="ui grid containter">
-          
-      <Stars arrayState={this.state.starsState}/>
-      </div>
-      
+          <div className="ui grid containter">
+            <Stars arrayState={this.state.starsState}/>
+          </div>
         </Grid.Column>
-      
-        </Grid>
-        </Segment>
+      </Grid>
+    <Counter time={this.state.TimeLeft}/>
+    </Segment>
     );
   }
 }
