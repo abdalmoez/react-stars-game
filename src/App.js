@@ -82,7 +82,7 @@ class App extends React.Component {
   state={
     starsState:getRandomState(),
     btnState:['','','','','','','','',''],
-    TimeLeft: 10,
+    TimeLeft: 30,
     GameOver:false,
     Winner:false
   };
@@ -94,6 +94,7 @@ class App extends React.Component {
     });
     return c;
   }
+
   btnClick=(event)=>{
     let {btnState} = this.state;
     let id=parseInt(event.target.innerText);
@@ -169,11 +170,16 @@ class App extends React.Component {
         starsState:getRandomState(),
         Winner:false,
         GameOver:false,
-        TimeLeft:10
+        TimeLeft:30
       });
   }
   render(){ 
     return (<>
+      <h1 style={{textAlign:"center", color:"#fbbd08", fontSize:'2em',paddingTop:'10px'}}>
+        <i className="star icon big"></i>
+        Stars Game
+        <i className="star icon big"></i>
+      </h1>
       <Segment>
         <button className="ui button yellow" style={{float:"right"}} onClick={this.restartGame}>Restart Game</button>
         <Grid columns={2} relaxed='very'>
